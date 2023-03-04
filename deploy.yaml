@@ -1,0 +1,247 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: che-openvsx
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: open-vsx-pg
+  namespace: che-openvsx
+stringData:
+  database-user: openvsx
+  database-password: openvsx
+  database-name: openvsx
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: open-vsx-pg
+  namespace: che-openvsx
+spec:
+  ports:
+    - name: postgresql
+      protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 0
+  selector:
+    name: open-vsx-pg
+  type: ClusterIP
+  sessionAffinity: None
+status:
+  loadBalancer: {}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: open-vsx-pg
+  namespace: che-openvsx
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: open-vsx-pg
+  namespace: che-openvsx
+spec:
+  strategy:
+    type: Recreate
+    recreateParams:
+      timeoutSeconds: 600
+    resources: {}
+    activeDeadlineSeconds: 21600
+  replicas: 1
+  selector:
+    matchLabels:
+      name: open-vsx-pg
+  template:
+    metadata:
+      labels:
+        name: open-vsx-pg
+    spec:
+      containers:
+        - name: postgresql
+          image: quay.io/sclorg/postgresql-15-c9s:c9s
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            timeoutSeconds: 1
+            initialDelaySeconds: 5
+            exec:
+              command:
+                - /usr/libexec/check-container
+          livenessProbe:
+            timeoutSeconds: 10
+            initialDelaySeconds: 120
+            exec:
+              command:
+                - /usr/libexec/check-container
+                - --live
+          env:
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: open-vsx-pg
+                  key: database-user
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: open-vsx-pg
+                  key: database-password
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: open-vsx-pg
+                  key: database-name
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 1024Mi
+          volumeMounts:
+            - name: open-vsx-pg-data
+              mountPath: /var/lib/pgsql/data
+          terminationMessagePath: /dev/termination-log
+          capabilities: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            privileged: false
+      volumes:
+        - name: open-vsx-pg-data
+          persistentVolumeClaim:
+            claimName: open-vsx-pg
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: open-vsx-server
+  namespace: che-openvsx
+spec:
+  ports:
+    - name: open-vsx-server
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 0
+  selector:
+    name: open-vsx-server
+  type: ClusterIP
+  sessionAffinity: None
+status:
+  loadBalancer: {}
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: open-vsx-server
+  namespace: che-openvsx
+spec:
+  to:
+    kind: Service
+    name: open-vsx-server
+    weight: 100
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: open-vsx-server
+  namespace: che-openvsx
+spec:
+  strategy:
+    type: Recreate
+    recreateParams:
+      timeoutSeconds: 600
+    resources: {}
+    activeDeadlineSeconds: 21600
+  replicas: 1
+  selector:
+    matchLabels:
+      name: open-vsx-server
+  template:
+    metadata:
+      labels:
+        name: open-vsx-server
+    spec:
+      containers:
+        - name: open-vsx-server
+          image: image-registry.openshift-image-registry.svc:5000/che-openvsx/open-vsx-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+          env:
+            - name: OPEN_VSX_PG_SVC
+              value: open-vsx-pg.che-openvsx.svc.cluster.local
+            - name: OPEN_VSX_PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: open-vsx-pg
+                  key: database-user
+            - name: OPEN_VSX_PG_PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: open-vsx-pg
+                  key: database-password
+            - name: OPEN_VSX_PG_DB
+              valueFrom:
+                secretKeyRef:
+                  name: open-vsx-pg
+                  key: database-name
+          resources:
+            requests:
+              cpu: 100m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 3072Mi
+          terminationMessagePath: /dev/termination-log
+          capabilities: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            privileged: false
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault

@@ -1,0 +1,28 @@
+extensions:
+- id: redhat.vscode-yaml
+- id: redhat.java
+  version: 1.14.0
+- id: vscjava.vscode-java-debug
+- id: vscode.html-language-features
+- id: redhat.vscode-microprofile
+- id: redhat.vscode-quarkus
+- id: redhat.vscode-redhat-account
+- id: ms-kubernetes-tools.vscode-kubernetes-tools
+- id: redhat.vscode-openshift-connector
+- id: redhat.vscode-tekton-pipelines
+- id: vscjava.vscode-maven
+- id: vscode.docker
+- id: vscode.yaml
+- id: ms-azuretools.vscode-docker
+  version: 1.22.2
+- id: mhutchie.git-graph
+- id: eamodio.gitlens
+- id: streetsidesoftware.code-spell-checker
+- id: DavidAnson.vscode-markdownlint
+- id: johnpapa.winteriscoming
+- id: cnshenj.vscode-task-manager
+
+# extensions:
+# - id: some.extension
+#   version: 1.2.3
+#   url: https://path.org/to/extension
