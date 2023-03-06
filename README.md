@@ -32,7 +32,7 @@ oc apply -f deploy-postgres.yaml
 ### Deploy Open VSX Registry
 
 ```bash
-oc apply -f deploy-openvsx.yaml
+envsubst < ./deploy-openvsx.yaml | oc apply -f -
 ```
 
 ### Install `ovsx` Command Line
