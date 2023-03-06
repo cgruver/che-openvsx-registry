@@ -2,19 +2,58 @@
 
 Self Hosted instance of Open VSX for disconnected OpenShift installations using Eclipse Che (OpenShift Dev Spaces)
 
-```bash
-podman build -t ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:latest .
-podman push ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:latest
-oc import-image open-vsx-server:latest --from=${PROXY_REGISTRY}/eclipse-che/open-vsx-server:latest --confirm -n che-openvsx
-```
+## Build the OpenVSX Image
 
 ```bash
-oc apply -f deploy.yaml
+export OPEN_VSX_VERSION=v0.9.0
+export LOCAL_REGISTRY=<url-of-your-registry>
+podman build --build-arg OPEN_VSX_VERSION=${OPEN_VSX_VERSION} -t ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION} .
 ```
+
+### Push To Registry
+
+```bash
+podman push ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION}
+```
+
+### Create Image Stream
+
+```bash
+oc apply -f namespace.yaml
+oc import-image open-vsx-server:latest --from=${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:latest --confirm -n che-openvsx
+```
+
+### Deploy Postgres
+
+```bash
+oc apply -f deploy-postgres.yaml
+```
+
+### Deploy Open VSX Registry
+
+```bash
+oc apply -f deploy-openvsx.yaml
+```
+
+### Install `ovsx` Command Line
 
 ```bash
 npm install -g ovsx
 ```
+
+## Download Extensions
+
+```bash
+./offline-extensions.sh -d -f=extension-list.yaml 
+```
+
+Note the name of the bundle that is created. `
+
+## Prepare For Extension Import
+
+### Create Access Token
+
+Execute the following commands in a terminal on the Postgres Pod
 
 ```bash
 psql -d openvsx -c "INSERT INTO user_data (id, login_name) VALUES (1001, 'eclipse-che');"
@@ -22,12 +61,23 @@ psql -d openvsx -c "INSERT INTO personal_access_token (id, user_data, value, act
 psql -d openvsx -c "UPDATE user_data SET role='admin' WHERE user_data.login_name='eclipse-che';"
 ```
 
+### Set `ovzx` Environment
+
 ```bash
 export OVSX_REGISTRY_URL=https://$(oc get route open-vsx-server -n che-openvsx -o jsonpath={.spec.host})
 export OVSX_PAT=eclipse_che_token
-export SYNCH_FILE=./openvsx-sync.json
 export NODE_TLS_REJECT_UNAUTHORIZED='0'
 ```
+
+### Import Extensions
+
+```bash
+./offline-extensions.sh -u -b=/path/to/the/openvsx-bundle-****.tar
+```
+
+### Disable Access Token
+
+Execute the following command in a terminal on the Postgres Pod
 
 ```bash
 psql -d openvsx -c "UPDATE personal_access_token SET active = false;"

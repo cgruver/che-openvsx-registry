@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -x 
-
 function fetchExtension() {
 
   local ext_data="${1}"
@@ -25,7 +23,9 @@ function fetchExtension() {
   namespace=$(echo "${ext_data}" | yq e ".namespace")
   version=$(echo "${ext_data}" | yq e ".version")
 
+  echo "Downloading: ${url}"
   curl -sL "${url}" -o "${WORK_DIR}/${namespace}-${name}-${version}.vsix"
+  echo "${namespace}" >> ${WORK_DIR}/tmp-namespace.list
   echo "${namespace}-${name}-${version}.vsix" >> ${WORK_DIR}/bundle.list
 }
 
@@ -95,14 +95,21 @@ function download() {
     fi
     index=$(( ${index} + 1 ))
   done
+  cat ${WORK_DIR}/tmp-namespace.list | sort -u > ${WORK_DIR}/namespace.list
+  rm ${WORK_DIR}/tmp-namespace.list
   tar -cvf ${BUNDLE_NAME} -C ${WORK_DIR} .
   rm -rf ${WORK_DIR}
+  echo "Extension Bundle Created at: ./${BUNDLE_NAME}"
 }
 
 function upload() {
 
   WORK_DIR=$(mktemp -d)
   tar -xvf ${BUNDLE_NAME} -C ${WORK_DIR}
+  for namespace in $(cat ${WORK_DIR}/namespace.list)
+  do
+    ovsx create-namespace ${namespace}
+  done 
   for bundle in $(cat ${WORK_DIR}/bundle.list)
   do
     ovsx publish --skip-duplicate ${WORK_DIR}/${bundle}
