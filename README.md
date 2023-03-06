@@ -20,13 +20,17 @@ podman push ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION}
 
 ```bash
 oc apply -f namespace.yaml
-oc import-image open-vsx-server:latest --from=${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:latest --confirm -n che-openvsx
+oc import-image open-vsx-server:${OPEN_VSX_VERSION} --from=${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION} --confirm -n che-openvsx
 ```
 
 ### Deploy Postgres
 
 ```bash
 oc apply -f deploy-postgres.yaml
+```
+
+```bash
+oc wait --for=condition=Available -n che-openvsx --timeout=120s --all deployments
 ```
 
 ### Deploy Open VSX Registry
