@@ -65,7 +65,7 @@ psql -d openvsx -c "INSERT INTO personal_access_token (id, user_data, value, act
 psql -d openvsx -c "UPDATE user_data SET role='admin' WHERE user_data.login_name='eclipse-che';"
 ```
 
-### Set `ovzx` Environment
+### Set `ovsx` Environment
 
 ```bash
 export OVSX_REGISTRY_URL=https://$(oc get route open-vsx-server -n che-openvsx -o jsonpath={.spec.host})
