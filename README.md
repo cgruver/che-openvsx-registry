@@ -66,9 +66,11 @@ Note the name of the bundle that is created. `
 Execute the following commands in a terminal on the Postgres Pod
 
 ```bash
-psql -d openvsx -c "INSERT INTO user_data (id, login_name) VALUES (1001, 'eclipse-che');"
-psql -d openvsx -c "INSERT INTO personal_access_token (id, user_data, value, active, created_timestamp, accessed_timestamp, description) VALUES (1001, 1001, 'eclipse_che_token', true, current_timestamp, current_timestamp, 'extensions');"
-psql -d openvsx -c "UPDATE user_data SET role='admin' WHERE user_data.login_name='eclipse-che';"
+PG_POD=$(oc get pods --selector name=open-vsx-pg -n che-openvsx -o name)
+
+oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d openvsx -c \"INSERT INTO user_data (id, login_name) VALUES (1001, 'eclipse-che');\" && \
+  psql -d openvsx -c \"INSERT INTO personal_access_token (id, user_data, value, active, created_timestamp, accessed_timestamp, description) VALUES (1001, 1001, 'eclipse_che_token', true, current_timestamp, current_timestamp, 'extensions');\" && \
+  psql -d openvsx -c \"UPDATE user_data SET role='admin' WHERE user_data.login_name='eclipse-che';\""
 ```
 
 ### Set `ovsx` Environment
@@ -90,5 +92,5 @@ export NODE_TLS_REJECT_UNAUTHORIZED='0'
 Execute the following command in a terminal on the Postgres Pod
 
 ```bash
-psql -d openvsx -c "UPDATE personal_access_token SET active = false;"
+oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data "psql -d openvsx -c \"UPDATE personal_access_token SET active = false;\""
 ```
