@@ -2,6 +2,12 @@
 
 Self Hosted instance of Open VSX for disconnected OpenShift installations using Eclipse Che (OpenShift Dev Spaces)
 
+## Prerequisites
+
+NodeJS v14+
+
+YQ YAML CLI - [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq/)
+
 ## Build the OpenVSX Image
 
 ```bash
