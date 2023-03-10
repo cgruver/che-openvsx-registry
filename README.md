@@ -67,7 +67,7 @@ npm install -g ovsx
 ./offline-extensions.sh -d -f=extension-list.yaml 
 ```
 
-Note the name of the bundle that is created. `
+Note the name of the bundle that is created.
 
 ## Prepare For Extension Import
 
@@ -102,5 +102,5 @@ export NODE_TLS_REJECT_UNAUTHORIZED='0'
 Execute the following command in a terminal on the Postgres Pod
 
 ```bash
-oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data "psql -d openvsx -c \"UPDATE personal_access_token SET active = false;\""
+oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d openvsx -c \"UPDATE personal_access_token SET active = false;\""
 ```
