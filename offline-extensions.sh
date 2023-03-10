@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 
-function fetchExtension() {
+function downloadExtension() {
+
+  local url=${1}
+  local fileName=${2}
+  local namespace=${3}
+
+  echo "Downloading: ${url}"
+  curl -sL "${url}" -o "${WORK_DIR}/${fileName}"
+  echo "${namespace}" >> ${WORK_DIR}/tmp-namespace.list
+  echo "${fileName}" >> ${WORK_DIR}/bundle.list
+
+}
+
+function fetchExtensionData() {
 
   local ext_data="${1}"
 
@@ -22,11 +35,8 @@ function fetchExtension() {
   name=$(echo "${ext_data}" | yq e ".name")
   namespace=$(echo "${ext_data}" | yq e ".namespace")
   version=$(echo "${ext_data}" | yq e ".version")
-
-  echo "Downloading: ${url}"
-  curl -sL "${url}" -o "${WORK_DIR}/${namespace}-${name}-${version}.vsix"
-  echo "${namespace}" >> ${WORK_DIR}/tmp-namespace.list
-  echo "${namespace}-${name}-${version}.vsix" >> ${WORK_DIR}/bundle.list
+  downloadExtension ${url} ${namespace}-${name}-${version}.vsix ${namespace}
+  
 }
 
 function getUrl() {
@@ -49,7 +59,7 @@ function getUrl() {
   fi
 }
 
-function fetchDependencies() {
+function fetchDependencyData() {
 
   local ext_data="${1}"
   local index=0
@@ -59,7 +69,7 @@ function fetchDependencies() {
   do
     dep_url=$(echo "${ext_data}" | yq e ".dependencies.[${index}].url")
     dep_metadata=$(curl -sLS "${dep_url}/latest" | yq -P ".")
-    fetchExtension "${dep_metadata}"
+    fetchExtensionData "${dep_metadata}"
     index=$(( ${index} + 1 ))
   done
 }
@@ -86,12 +96,12 @@ function download() {
     if [[ ${has_url} == "true" ]]
     then
       ext_url=$(yq e ".extensions.[${index}].url" ${EXTENSION_FILE})
-      curl -sL "${ext_url}" -o "${WORK_DIR}/${ext_id//./-}-${ext_version}.vsix"
+      downloadExtension ${ext_url} ${ext_id//./-}-${ext_version}.vsix $(echo ${ext_id} | cut -d"." -f1)
     else
       ext_path=${ext_id//./\/}
       ext_metadata=$(curl -sLS "https://open-vsx.org/api/${ext_path}/${ext_version}" | yq -P ".")
-      fetchDependencies "${ext_metadata}"
-      fetchExtension "${ext_metadata}"
+      fetchDependencyData "${ext_metadata}"
+      fetchExtensionData "${ext_metadata}"
     fi
     index=$(( ${index} + 1 ))
   done

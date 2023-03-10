@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/ubi9/ubi-minimal
 
-ARG OPEN_VSX_VERSION=v0.9.0
+ARG OPEN_VSX_VERSION=v0.9.1
 
 COPY --from=ghcr.io/eclipse/openvsx-server:${OPEN_VSX_VERSION} --chown=0:0 /home/openvsx/server /openvsx-server
 COPY ./application.yaml /openvsx-server/config/
