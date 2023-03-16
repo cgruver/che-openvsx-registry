@@ -55,6 +55,18 @@ oc wait --for=condition=Available deployment/open-vsx-server -n che-openvsx --ti
 oc patch CheCluster eclipse-che -n eclipse-che --type merge --patch '{"spec":{"components":{"pluginRegistry":{"openVSXURL":"http://open-vsx-server.che-openvsx.svc.cluster.local:8080"}}}}'
 ```
 
+### Create Access Token
+
+Execute the following commands in a terminal on the Postgres Pod
+
+```bash
+PG_POD=$(oc get pods --selector name=open-vsx-pg -n che-openvsx -o name)
+
+oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d openvsx -c \"INSERT INTO user_data (id, login_name) VALUES (1001, 'eclipse-che');\" && \
+  psql -d openvsx -c \"INSERT INTO personal_access_token (id, user_data, value, active, created_timestamp, accessed_timestamp, description) VALUES (1001, 1001, 'eclipse_che_token', false, current_timestamp, current_timestamp, 'extensions');\" && \
+  psql -d openvsx -c \"UPDATE user_data SET role='admin' WHERE user_data.login_name='eclipse-che';\""
+```
+
 ### Install `ovsx` Command Line
 
 ```bash
@@ -71,16 +83,11 @@ Note the name of the bundle that is created.
 
 ## Prepare For Extension Import
 
-### Create Access Token
-
-Execute the following commands in a terminal on the Postgres Pod
+### Enable Access Token
 
 ```bash
 PG_POD=$(oc get pods --selector name=open-vsx-pg -n che-openvsx -o name)
-
-oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d openvsx -c \"INSERT INTO user_data (id, login_name) VALUES (1001, 'eclipse-che');\" && \
-  psql -d openvsx -c \"INSERT INTO personal_access_token (id, user_data, value, active, created_timestamp, accessed_timestamp, description) VALUES (1001, 1001, 'eclipse_che_token', true, current_timestamp, current_timestamp, 'extensions');\" && \
-  psql -d openvsx -c \"UPDATE user_data SET role='admin' WHERE user_data.login_name='eclipse-che';\""
+oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d openvsx -c \"UPDATE personal_access_token SET active = true;\""
 ```
 
 ### Set `ovsx` Environment
