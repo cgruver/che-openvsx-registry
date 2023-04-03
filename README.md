@@ -12,15 +12,15 @@ YQ YAML CLI - [https://mikefarah.gitbook.io/yq/](https://mikefarah.gitbook.io/yq
 
 ```bash
 cd image
-export OPEN_VSX_VERSION=v0.9.1
-export LOCAL_REGISTRY=<url-of-your-registry>
-podman build --build-arg OPEN_VSX_VERSION=${OPEN_VSX_VERSION} -t ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION} .
+export OPEN_VSX_VERSION=v0.9.7
+export REGISTRY=<url-of-your-registry>
+podman build --build-arg OPEN_VSX_VERSION=${OPEN_VSX_VERSION} -t ${REGISTRY}/che/open-vsx-server:${OPEN_VSX_VERSION} -f ./Containerfile .
 ```
 
 ### Push To Registry
 
 ```bash
-podman push ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION}
+podman push ${REGISTRY}/che/open-vsx-server:${OPEN_VSX_VERSION}
 ```
 
 ### Create Image Stream
@@ -28,7 +28,7 @@ podman push ${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION}
 ```bash
 cd ..
 oc apply -f namespace.yaml
-oc import-image open-vsx-server:${OPEN_VSX_VERSION} --from=${LOCAL_REGISTRY}/eclipse-che/open-vsx-server:${OPEN_VSX_VERSION} --confirm -n che-openvsx
+oc import-image open-vsx-server:${OPEN_VSX_VERSION} --from=${REGISTRY}/che/open-vsx-server:${OPEN_VSX_VERSION} --confirm -n che-openvsx
 ```
 
 ### Deploy Postgres
@@ -52,6 +52,10 @@ oc wait --for=condition=Available deployment/open-vsx-server -n che-openvsx --ti
 ```
 
 ```bash
+OVSX_URL=https://$(oc get route open-vsx-server -n che-openvsx -o jsonpath={.spec.host})
+
+oc patch CheCluster eclipse-che -n eclipse-che --type merge --patch "{\"spec\":{\"components\":{\"pluginRegistry\":{\"openVSXURL\":\"${OVSX_URL}\"}}}}"
+
 oc patch CheCluster eclipse-che -n eclipse-che --type merge --patch '{"spec":{"components":{"pluginRegistry":{"openVSXURL":"http://open-vsx-server.che-openvsx.svc.cluster.local:8080"}}}}'
 ```
 

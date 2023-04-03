@@ -128,6 +128,18 @@ function upload() {
 
 }
 
+function enableToken() {
+
+  PG_POD=$(oc get pods --selector name=open-vsx-pg -n che-openvsx -o name)
+  oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d openvsx -c \"UPDATE personal_access_token SET active = true;\""
+}
+
+function disableToken() {
+
+  PG_POD=$(oc get pods --selector name=open-vsx-pg -n che-openvsx -o name)
+  oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d openvsx -c \"UPDATE personal_access_token SET active = false;\""
+}
+
 function printHelp() {
   echo "wip"
 }
