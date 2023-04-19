@@ -1,0 +1,14 @@
+namespace: che-openvsx
+resources:
+  - deploy-openvsx.yaml
+  - deploy-postgres.yaml
+configMapGenerator:
+- name: open-vsx-app-config
+  files:
+  - application.yaml
+secretGenerator:
+- name: open-vsx-pg
+  literals:
+    - database-user=openvsx
+    - database-password=openvsx
+    - database-name=openvsx

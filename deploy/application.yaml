@@ -10,7 +10,7 @@ spring:
     jcache:
       config: classpath:ehcache.xml
   datasource:
-    url: jdbc:postgresql://${OPEN_VSX_PG_SVC}/${OPEN_VSX_PG_DB}
+    url: jdbc:postgresql://open-vsx-pg.${OPEN_VSX_NAMESPACE}.svc.cluster.local/${OPEN_VSX_PG_DB}
     username: ${OPEN_VSX_PG_USER}
     password: ${OPEN_VSX_PG_PASSWD}
   flyway:
