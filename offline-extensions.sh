@@ -79,7 +79,7 @@ function download() {
   local index=0
 
   WORK_DIR=$(mktemp -d)
-  BUNDLE_NAME="openvsx-bundle-$(date +%m%d%Y%k%M%S).tar"
+  BUNDLE_NAME="openvsx-bundle-$(date +%m%d%Y%H%M%S).tar"
 
   num_ext=$(yq e ".extensions" ${EXTENSION_FILE} | yq e 'length')
   while [[ ${index} -lt ${num_ext} ]]
