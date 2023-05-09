@@ -15,6 +15,17 @@ components:
       - /dev/null
     command:
       - tail
+    env:
+    - name: SHELL
+      value: "/bin/zsh"
+    - name: HOME
+      value: "/projects/home"
+    volumeMounts:
+    - name: home
+      path: /projects/home
 - volume:
     size: 4Gi
   name: projects
+- volume:
+    size: 2Gi
+  name: home
