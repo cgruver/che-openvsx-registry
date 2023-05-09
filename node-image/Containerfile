@@ -1,0 +1,23 @@
+FROM registry.access.redhat.com/ubi9/ubi-minimal as builder
+
+ARG NODE_VERSION=v18.15.0
+
+RUN microdnf install --nodocs -y tar xz gzip unzip && microdnf clean all ; \
+  TEMP_DIR="$(mktemp -d)" ; \
+  curl -fsSL -o ${TEMP_DIR}/node.tz https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz ; \
+  tar -x --no-auto-compress -f ${TEMP_DIR}/node.tz -C / ; \
+  rm -rf "${TEMP_DIR}"
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal
+
+ARG NODE_VERSION=v18.15.0
+
+COPY --from=builder /node-${NODE_VERSION}-linux-x64 /usr/local/node
+
+RUN ln -s /usr/local/node/bin/node /bin/node ; \
+  ln -s /usr/local/node/bin/npm /bin/npm ; \
+  npm install --global yarn
+
+
+
+  
