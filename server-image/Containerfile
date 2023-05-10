@@ -1,0 +1,33 @@
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest as builder
+
+ARG NODE_VERSION=v18.15.0
+
+RUN microdnf install --nodocs -y tar xz gzip unzip && microdnf clean all ; \
+  TEMP_DIR="$(mktemp -d)" ; \
+  curl -fsSL -o ${TEMP_DIR}/node.tz https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz ; \
+  tar -x --no-auto-compress -f ${TEMP_DIR}/node.tz -C / ; \
+  mv /node-${NODE_VERSION}-linux-x64 /node ; \
+  rm -rf "${TEMP_DIR}"
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+ARG OPEN_VSX_VERSION=v0.11.1
+
+COPY --from=ghcr.io/eclipse/openvsx-server:${OPEN_VSX_VERSION} --chown=0:0 /home/openvsx/server /openvsx-server
+COPY --from=ghcr.io/eclipse/openvsx-webui:${OPEN_VSX_VERSION} --chown=0:0 /home/node/webui /webui
+COPY --from=builder /node /usr/local/node
+COPY ./entrypoint.sh /
+
+ENV JVM_ARGS="-DSPDXParser.OnlyUseLocalLicenses=true -Xmx2048m"
+
+RUN microdnf install --nodocs -y java-11-openjdk ; \
+  microdnf clean all ; \
+  ln -s /usr/local/node/bin/node /bin/node ; \
+  ln -s /usr/local/node/bin/npm /bin/npm ; \
+  npm install --global yarn ; \
+  cd /webui ; \
+  yarn add express@4.17.1
+
+EXPOSE 3000
+EXPOSE 8080
+ENTRYPOINT ["/entrypoint.sh"]

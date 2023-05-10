@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: open-vsx-server
+  name: open-vsx
   namespace: che-openvsx
 spec:
   ports:
@@ -10,8 +10,13 @@ spec:
       port: 8080
       targetPort: 8080
       nodePort: 0
+    - name: open-vsx-webui
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 0
   selector:
-    name: open-vsx-server
+    name: open-vsx
   type: ClusterIP
   sessionAffinity: None
 status:
@@ -34,6 +39,23 @@ spec:
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 ---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: open-vsx-webui
+  namespace: che-openvsx
+spec:
+  to:
+    kind: Service
+    name: open-vsx
+    weight: 100
+  port:
+    targetPort: 3000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -49,18 +71,20 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      name: open-vsx-server
+      name: open-vsx
   template:
     metadata:
       labels:
-        name: open-vsx-server
+        name: open-vsx
     spec:
       containers:
         - name: open-vsx-server
-          image: image-registry.openshift-image-registry.svc:5000/che-openvsx/open-vsx-server:v0.9.7
+          image: image-registry.openshift-image-registry.svc:5000/che-openvsx/open-vsx-server:v0.11.1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+              protocol: TCP
+            - containerPort: 3000
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -98,10 +122,9 @@ spec:
                   key: database-name
           resources:
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 32Mi
             limits:
-              cpu: 500m
               memory: 3072Mi
           volumeMounts:
             - name: open-vsx-app-config
