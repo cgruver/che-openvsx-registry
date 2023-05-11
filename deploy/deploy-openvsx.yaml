@@ -19,8 +19,6 @@ spec:
     name: open-vsx
   type: ClusterIP
   sessionAffinity: None
-status:
-  loadBalancer: {}
 ---
 kind: Route
 apiVersion: route.openshift.io/v1

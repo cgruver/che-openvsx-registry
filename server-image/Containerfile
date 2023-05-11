@@ -25,6 +25,7 @@ RUN microdnf install --nodocs -y java-11-openjdk ; \
   ln -s /usr/local/node/bin/node /bin/node ; \
   ln -s /usr/local/node/bin/npm /bin/npm ; \
   npm install --global yarn ; \
+  ln -s /usr/local/node/lib/node_modules/yarn/bin/yarn.js /bin/yarn ; \
   cd /webui ; \
   yarn add express@4.17.1
 
