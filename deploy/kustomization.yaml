@@ -1,5 +1,6 @@
 namespace: che-openvsx
 resources:
+  - namespace.yaml
   - deploy-openvsx.yaml
   - deploy-postgres.yaml
 configMapGenerator:
@@ -12,3 +13,7 @@ secretGenerator:
     - database-user=openvsx
     - database-password=openvsx
     - database-name=openvsx
+images:
+- name: open-vsx-server
+  newName: quay.io/cgruver0/che/open-vsx-server
+  newTag: webui

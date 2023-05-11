@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
         - name: open-vsx-server
-          image: image-registry.openshift-image-registry.svc:5000/che-openvsx/open-vsx-server:v0.11.1
+          image: open-vsx-server:tag
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
