@@ -44,3 +44,5 @@ ovsx:
     clear-on-start: true
   databasesearch:
     enabled: true
+  webui:
+    url: https://open-vsx-webui-che-openvsx.apps.okd4-sno-2.my.awesome.lab/
