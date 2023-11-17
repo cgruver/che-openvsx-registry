@@ -1,0 +1,51 @@
+FROM registry.access.redhat.com/ubi9/ubi-minimal as tools-builder
+
+RUN microdnf --disableplugin=subscription-manager install -y bash tar gzip zip xz unzip ; \
+  TOOLS_DIR=${TOOLS_DIR:=/tools} ; \
+  rm -rf ${TOOLS_DIR} ; \
+  mkdir -p ${TOOLS_DIR}/bin ; \
+  TEMP_DIR="$(mktemp -d)"  ; \
+  YQ_VER=$(basename $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/mikefarah/yq/releases/latest)) ; \
+  curl -fsSL -o ${TEMP_DIR}/yq.tar.gz https://github.com/mikefarah/yq/releases/download/${YQ_VER}/yq_linux_amd64.tar.gz ; \ 
+  tar -xzf ${TEMP_DIR}/yq.tar.gz -C ${TEMP_DIR} ; \
+  cp ${TEMP_DIR}/yq_linux_amd64 ${TOOLS_DIR}/bin/yq ; \ 
+  chmod +x ${TOOLS_DIR}/bin/yq ; \ 
+  rm -rf "${TEMP_DIR}" ; \ 
+  TEMP_DIR="$(mktemp -d)" ; \
+  HELM_VERSION=$(basename $(curl -Ls -o /dev/null -w %{url_effective} https://github.com/helm/helm/releases/latest)) ; \
+  curl -fsSL -o ${TEMP_DIR}/helm.tgz https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz ; \
+  tar -xzf ${TEMP_DIR}/helm.tgz -C ${TEMP_DIR} ; \
+  mv ${TEMP_DIR}/linux-amd64/helm ${TOOLS_DIR}/bin/helm ; \
+  chmod +x ${TOOLS_DIR}/bin/helm ; \
+  rm -rf "${TEMP_DIR}" ; \
+  ln -s /projects/bin/oc ${TOOLS_DIR}/bin/oc ; \
+  ln -s /projects/bin/kubectl ${TOOLS_DIR}/bin/kubectl
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal
+
+ARG USER_HOME_DIR="/home/user"
+ARG WORK_DIR="/projects"
+ENV HOME=${USER_HOME_DIR}
+ENV BUILDAH_ISOLATION=chroot
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+ENV PATH=${PATH}:/usr/local/tools/bin:/usr/local/tools/node/bin
+COPY --from=tools-builder /tools/ /usr/local/tools
+COPY --chown=0:0 entrypoint.sh /
+RUN microdnf --disableplugin=subscription-manager install -y procps-ng openssl compat-openssl11 libbrotli git tar gzip zip xz unzip which shadow-utils bash zsh vi wget jq podman buildah skopeo podman-docker glibc-devel zlib-devel ; \
+  microdnf update -y ; \
+  microdnf clean all ; \
+  mkdir -p ${USER_HOME_DIR} ; \
+  mkdir -p ${WORK_DIR} ; \
+  mkdir -p /usr/local/bin ; \
+  setcap cap_setuid+ep /usr/bin/newuidmap ; \
+  setcap cap_setgid+ep /usr/bin/newgidmap ; \
+  mkdir -p ${HOME}/.config/containers ; \
+  touch /etc/subgid /etc/subuid ; \
+  chmod -R g=u /etc/passwd /etc/group /etc/subuid /etc/subgid ; \
+  chgrp -R 0 /home ; \
+  chmod +x /entrypoint.sh ; \
+  chmod -R g=u /home ${WORK_DIR}
+USER 10001
+WORKDIR ${WORK_DIR}
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD [ "tail", "-f", "/dev/null" ]

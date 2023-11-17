@@ -1,0 +1,24 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: open-vsx-server
+  namespace: che-openvsx
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: open-vsx-server
+  namespace: che-openvsx
+spec:
+  source:
+    git:
+      uri: https://github.com/cgruver/che-openvsx-registry.git
+      ref: main
+    contextDir: "open-vsx-server"
+  strategy:
+    dockerStrategy:
+      dockerfilePath: "./Containerfile"
+  output:
+    to:
+      kind: ImageStreamTag
+      name: open-vsx-server:latest

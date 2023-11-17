@@ -6,8 +6,7 @@ metadata:
 components:
 - name: podman
   container: 
-    image: quay.io/cgruver0/che/podman-basic:latest
-    # image: image-registry.openshift-image-registry.svc:5000/podman-build/podman-basic:latest
+    image: image-registry.openshift-image-registry.svc:5000/che-dev-images/che-vsx-dev-image:latest
     memoryLimit: 6Gi
     mountSources: true
     args:
