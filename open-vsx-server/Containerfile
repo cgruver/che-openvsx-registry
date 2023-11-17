@@ -8,5 +8,5 @@ COPY ./entrypoint.sh /
 
 ENV JVM_ARGS="-DSPDXParser.OnlyUseLocalLicenses=true -Xmx2048m"
 
-RUN microdnf install --nodocs -y java-11-openjdk && microdnf clean all
+RUN microdnf install --nodocs -y java-17-openjdk && microdnf clean all
 ENTRYPOINT ["/entrypoint.sh"]
