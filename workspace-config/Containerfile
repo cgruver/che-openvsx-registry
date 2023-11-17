@@ -33,7 +33,6 @@ ARG USER_HOME_DIR="/home/user"
 ARG WORK_DIR="/projects"
 ENV HOME=${USER_HOME_DIR}
 ENV BUILDAH_ISOLATION=chroot
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
 ENV PATH=${PATH}:/usr/local/tools/bin:/usr/local/tools/node/bin
 COPY --from=tools-builder /tools/ /usr/local/tools
 COPY --chown=0:0 entrypoint.sh /
