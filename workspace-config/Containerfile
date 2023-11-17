@@ -2,6 +2,7 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal as tools-builder
 
 RUN microdnf --disableplugin=subscription-manager install -y bash tar gzip zip xz unzip ; \
   TOOLS_DIR=${TOOLS_DIR:=/tools} ; \
+  NODE_VERSION=${NODE_VERSION:=v18.17.1} ; \
   rm -rf ${TOOLS_DIR} ; \
   mkdir -p ${TOOLS_DIR}/bin ; \
   TEMP_DIR="$(mktemp -d)"  ; \
@@ -17,6 +18,11 @@ RUN microdnf --disableplugin=subscription-manager install -y bash tar gzip zip x
   tar -xzf ${TEMP_DIR}/helm.tgz -C ${TEMP_DIR} ; \
   mv ${TEMP_DIR}/linux-amd64/helm ${TOOLS_DIR}/bin/helm ; \
   chmod +x ${TOOLS_DIR}/bin/helm ; \
+  rm -rf "${TEMP_DIR}" ; \
+  TEMP_DIR="$(mktemp -d)" ; \
+  curl -fsSL -o ${TEMP_DIR}/node.tz https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.xz ; \
+  tar -x --no-auto-compress -f ${TEMP_DIR}/node.tz -C ${TEMP_DIR} ; \
+  mv ${TEMP_DIR}/node-${NODE_VERSION}-linux-x64 ${TOOLS_DIR}/node ; \
   rm -rf "${TEMP_DIR}" ; \
   ln -s /projects/bin/oc ${TOOLS_DIR}/bin/oc ; \
   ln -s /projects/bin/kubectl ${TOOLS_DIR}/bin/kubectl
@@ -37,6 +43,7 @@ RUN microdnf --disableplugin=subscription-manager install -y procps-ng openssl c
   mkdir -p ${USER_HOME_DIR} ; \
   mkdir -p ${WORK_DIR} ; \
   mkdir -p /usr/local/bin ; \
+  npm install -g ovsx ; \
   setcap cap_setuid+ep /usr/bin/newuidmap ; \
   setcap cap_setgid+ep /usr/bin/newgidmap ; \
   mkdir -p ${HOME}/.config/containers ; \
