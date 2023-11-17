@@ -20,7 +20,7 @@ extensions:
 - id: redhat.vscode-yaml
 - id: ms-kubernetes-tools.vscode-kubernetes-tools
 - id: redhat.java
-  version: 1.16.0
+  version: 1.24.0
 - id: vscjava.vscode-java-debug
 - id: vscjava.vscode-java-test
 - id: vscjava.vscode-maven
@@ -85,5 +85,5 @@ extensions:
 - id: angular.ng-template
 - id: johnpapa.angular2
 - id: redhat.vscode-knative
-  version: 1.3.1
-  url: https://github.com/redhat-developer/vscode-knative/releases/download/1.3.1/knative-1.3.1-254.vsix
+  version: 1.4.0
+

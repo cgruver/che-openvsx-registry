@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
         - name: open-vsx-server
-          image: image-registry.openshift-image-registry.svc:5000/che-openvsx/open-vsx-server:${OPEN_VSX_VERSION}
+          image: image-registry.openshift-image-registry.svc:5000/che-openvsx/open-vsx-server:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -97,9 +97,9 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 32Mi
+              memory: 512Mi
             limits:
-              cpu: 500m
+              cpu: 1000m
               memory: 3072Mi
           terminationMessagePath: /dev/termination-log
           capabilities: {}

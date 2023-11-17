@@ -62,7 +62,7 @@ spec:
     spec:
       containers:
         - name: postgresql
-          image: quay.io/sclorg/postgresql-15-c9s:c9s
+          image: image-registry.openshift-image-registry.svc:5000/che-openvsx/postgresql-15-c9s:c9s
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
