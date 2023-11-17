@@ -20,3 +20,24 @@ components:
 - volume:
     size: 4Gi
   name: projects
+- name: oc-cli
+  container:
+    args:
+      - '-c'
+      - >-
+        mkdir -p /projects/bin && cp /usr/bin/oc /projects/bin/oc && cp /usr/bin/kubectl /projects/bin/kubectl
+    command:
+      - /bin/bash
+    image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+    sourceMapping: /projects
+    mountSources: true
+    memoryRequest: 128M
+    memoryLimit: 256M
+commands:
+- apply:
+    component: oc-cli
+    label: Copy OpenShift CLI
+  id: cp-oc-cli
+events:
+  preStart:
+    - cp-oc-cli
