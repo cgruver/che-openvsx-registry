@@ -41,11 +41,7 @@ OVSX_URL=https://$(oc get route open-vsx-server -n che-openvsx -o jsonpath={.spe
 
 oc patch CheCluster eclipse-che -n eclipse-che --type merge --patch "{\"spec\":{\"components\":{\"pluginRegistry\":{\"openVSXURL\":\"${OVSX_URL}\"}}}}"
 
-oc patch CheCluster eclipse-che -n eclipse-che --type merge --patch '{"spec":{"components":{"pluginRegistry":{"openVSXURL":"http://open-vsx-server.che-openvsx.svc.cluster.local:8080"}}}}'
-
-oc patch CheCluster devspaces -n openshift-devspaces --type merge --patch '{"spec":{"components":{"pluginRegistry":{"openVSXURL":"http://open-vsx-server.che-openvsx.svc.cluster.local:8080"}}}}'
-
-oc patch CheCluster devspaces -n openshift-devspaces --type merge --patch '{"spec":{"components":{"pluginRegistry":{"openVSXURL":"https://open-vsx.org"}}}}'
+oc patch CheCluster devspaces -n devspaces --type merge --patch "{\"spec\":{\"components\":{\"pluginRegistry\":{\"openVSXURL\":\"${OVSX_URL}\"}}}}"
 ```
 
 ### Create Access Token
