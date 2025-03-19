@@ -60,4 +60,16 @@ springdoc:
     operationsSorter: alpha
     supportedSubmitMethods:
       - get
-
+org:
+  jobrunr:
+    job-scheduler:
+      enabled: true
+    background-job-server:
+      enabled: true
+      worker-count: 2
+    dashboard:
+      enabled: false
+    database:
+      type: sql
+    miscellaneous:
+      allow-anonymous-data-usage: false
