@@ -34,6 +34,18 @@ spec:
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: open-vsx-data
+  namespace: che-openvsx
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -101,6 +113,9 @@ spec:
             limits:
               cpu: 1000m
               memory: 3072Mi
+          volumeMounts:
+            - name: open-vsx-data
+              mountPath: /extensions
           terminationMessagePath: /dev/termination-log
           capabilities: {}
           securityContext:
@@ -109,6 +124,10 @@ spec:
               drop: ["ALL"]
             runAsNonRoot: true
             privileged: false
+      volumes:
+        - name: open-vsx-data
+          persistentVolumeClaim:
+            claimName: open-vsx-data
       restartPolicy: Always
       dnsPolicy: ClusterFirst
       securityContext:

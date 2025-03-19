@@ -41,6 +41,9 @@ management:
     probes:
       enabled: true
 ovsx:
+  storage:
+    local:
+      directory: "/extensions"
   elasticsearch:
     enabled: false
     clear-on-start: true
