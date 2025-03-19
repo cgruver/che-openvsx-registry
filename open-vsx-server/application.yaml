@@ -49,9 +49,8 @@ ovsx:
     clear-on-start: true
   databasesearch:
     enabled: true
-  ovsx:
-    integrity:
-      key-pair: renew
+  integrity:
+    key-pair: renew
 bucket4j:
   enabled: false
 springdoc:
