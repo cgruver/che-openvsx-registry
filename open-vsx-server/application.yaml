@@ -44,3 +44,6 @@ ovsx:
     clear-on-start: true
   databasesearch:
     enabled: true
+bucket4j:
+  enabled: false
+
