@@ -36,11 +36,20 @@ oc apply -f deploy-openvsx.yaml
 oc wait --for=condition=Available deployment/open-vsx-server -n che-openvsx --timeout=180s
 ```
 
+### Enable Eclipse Che / OpenShift Dev Spaces to use the hosted OpenVSX instance
 ```bash
 OVSX_URL=https://$(oc get route open-vsx-server -n che-openvsx -o jsonpath={.spec.host})
+```
 
+If using Eclipse Che -
+
+```bash
 oc patch CheCluster eclipse-che -n eclipse-che --type merge --patch "{\"spec\":{\"components\":{\"pluginRegistry\":{\"openVSXURL\":\"${OVSX_URL}\"}}}}"
+```
 
+Else Dev Spaces -
+
+```bash
 oc patch CheCluster devspaces -n devspaces --type merge --patch "{\"spec\":{\"components\":{\"pluginRegistry\":{\"openVSXURL\":\"${OVSX_URL}\"}}}}"
 ```
 
