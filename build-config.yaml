@@ -18,6 +18,9 @@ spec:
   strategy:
     dockerStrategy:
       dockerfilePath: "./Containerfile"
+      buildArgs:
+      - name: OPEN_VSX_VERSION
+        value: "v0.30.0"
   output:
     to:
       kind: ImageStreamTag

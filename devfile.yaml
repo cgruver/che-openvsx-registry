@@ -12,6 +12,8 @@ components:
     env:
     - name: SHELL
       value: "/bin/zsh"
+    - name: VSCODE_DEFAULT_WORKSPACE
+      value: "/projects/che-openvsx-registry/codeoss.code-workspace"
 - volume:
     size: 4Gi
   name: projects
