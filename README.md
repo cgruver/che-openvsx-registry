@@ -56,14 +56,6 @@ oc rsh -n che-openvsx ${PG_POD} bash "-c" "PGDATA=/var/lib/pgsql/data psql -d op
   psql -d openvsx -c \"UPDATE user_data SET role='admin' WHERE user_data.login_name='eclipse-che';\""
 ```
 
-## Download Extensions
-
-```bash
-./offline-extensions.sh -d -f=extension-list.yaml 
-```
-
-Note the name of the bundle that is created.
-
 ## Prepare For Extension Import
 
 ### Enable Access Token
@@ -85,6 +77,16 @@ export OVSX_REGISTRY_URL=https://$(oc get route open-vsx-server -n che-openvsx -
 export OVSX_PAT=eclipse_che_token
 export NODE_TLS_REJECT_UNAUTHORIZED='0'
 ```
+
+### Download Extensions
+
+Modify `extension-list.yaml` to suit your needs, or create your own file with a list of extensions following the example in `extension-list.yaml`
+
+```bash
+./offline-extensions.sh -d -f=extension-list.yaml 
+```
+
+Note the name of the bundle that is created.
 
 ### Import Extensions
 
