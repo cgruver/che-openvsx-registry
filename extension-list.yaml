@@ -3,13 +3,9 @@ extensions:
 - id: redhat.vscode-yaml
 - id: redhat.vscode-xml
 - id: redhat.java
-  version: 1.15.0
 - id: redhat.vscode-quarkus
 - id: redhat.vscode-tekton-pipelines
 - id: vscjava.vscode-maven
-- id: vscode.docker
-- id: ms-azuretools.vscode-docker
-  version: 1.22.2
 - id: mhutchie.git-graph
 - id: eamodio.gitlens
 - id: streetsidesoftware.code-spell-checker
@@ -19,9 +15,8 @@ extensions:
 - id: angular.ng-template
 - id: johnpapa.angular2
 - id: redhat.vscode-openshift-connector
-- id: redhat.vscode-knative
-  version: 1.3.1
-  url: https://github.com/redhat-developer/vscode-knative/releases/download/1.3.1/knative-1.3.1-254.vsix
+- id: dbaeumer.vscode-eslint
+- id: rooveterinaryinc.roo-cline
 
 # extensions:
 # - id: some.extension
