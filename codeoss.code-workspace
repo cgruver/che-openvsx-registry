@@ -1,7 +1,8 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"name": "che-openvsx-registry",
+			"path": "/projects/che-openvsx-registry"
 		}
 	],
 	"extensions": {
