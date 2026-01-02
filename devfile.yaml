@@ -6,14 +6,9 @@ metadata:
 components:
 - name: podman
   container: 
-    image: image-registry.openshift-image-registry.svc:5000/che-dev-images/che-vsx-dev-image:latest
+    image: quay.io/cgruver0/che/dev-tools:latest
     memoryLimit: 6Gi
     mountSources: true
-    args:
-      - '-f'
-      - /dev/null
-    command:
-      - tail
     env:
     - name: SHELL
       value: "/bin/zsh"
