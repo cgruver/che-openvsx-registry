@@ -1,9 +1,13 @@
 extensions:
 - id: vscode.yaml
 - id: redhat.vscode-yaml
+  version: 1.19.1
 - id: redhat.vscode-xml
+  version: 0.29.0
 - id: redhat.java
+  version: 1.52.0
 - id: redhat.vscode-quarkus
+  version: 1.22.0
 - id: redhat.vscode-tekton-pipelines
 - id: vscjava.vscode-maven
 - id: mhutchie.git-graph
