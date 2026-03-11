@@ -68,10 +68,20 @@ function fetchDependencyData() {
   while [[ ${index} -lt ${num_deps} ]]
   do
     dep_url=$(echo "${ext_data}" | yq e ".dependencies.[${index}].url")
-    dep_metadata=$(curl -sLS "${dep_url}/latest" | yq -P ".")
+    dep_namespace=$(echo "${ext_data}" | yq e ".dependencies.[${index}].namespace")
+    dep_extension=$(echo "${ext_data}" | yq e ".dependencies.[${index}].extension")
+    dep_id="${dep_namespace}.${dep_extension}"
+    dep_version=$(getRelease ${dep_id})
+    dep_metadata=$(curl -sLS "${dep_url}/${dep_version}" | yq -P ".")
     fetchExtensionData "${dep_metadata}"
     index=$(( ${index} + 1 ))
   done
+}
+
+function getRelease() {
+  local ext_id=${1}
+
+  curl -X GET "https://open-vsx.org/api/v2/-/query?extensionId=${ext_id}&includeAllVersions=true&size=500&offset=0" -H 'accept: application/json' | jq '.extensions[] | select(.preRelease==false)' | jq -r -s '.[0] | .version'
 }
 
 function download() {
@@ -91,7 +101,7 @@ function download() {
     then
       ext_version=$(yq e ".extensions.[${index}].version" ${EXTENSION_FILE})
     else
-      ext_version="latest"
+      ext_version=$(getRelease ${ext_id})
     fi
     if [[ ${has_url} == "true" ]]
     then
