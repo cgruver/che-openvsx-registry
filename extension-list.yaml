@@ -17,6 +17,8 @@ extensions:
 - id: redhat.vscode-openshift-connector
 - id: dbaeumer.vscode-eslint
 - id: rooveterinaryinc.roo-cline
+- id: redhat.ansible
+- id: ms-python.python
 
 # extensions:
 # - id: some.extension
